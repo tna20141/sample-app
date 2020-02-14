@@ -29,7 +29,11 @@ const wrapl = (func, context) => ({ res, resContext }) =>
 
 const newl = wrapl;
 
-const chainl = r.compose(f.chain, wrapl);
+const chainl = func => ({ result, context }) =>
+  func(result)
+    .pipe(f.chain({ result: result2, context: context2 } =>
+      f.resolve({ result: result2, context: mergeContext(context, context2) })
+    ));
 
 const markl = context => f.chain(wrapl(f.resolve, context));
 
@@ -40,7 +44,9 @@ const encaseP = f.encaseP;
 const newFuture = func => f((reject, resolve) => {
   func(resolve, reject);
   return () => {};
-});
+})
+  .pipe(f.chain(result => f.resolve({ result })))
+  .pipe(f.chainRej(error => f.reject({ error })));
 
 const newFutureFunc = num => newFuture((resolve, reject) => {
   setTimeout(() => {
@@ -49,21 +55,42 @@ const newFutureFunc = num => newFuture((resolve, reject) => {
   }, 1000);
 });
 
-const fin = r.pipe(
-  newl(fl1),
-  markl({ a: 1, b: 2 }),
-  chainl(fl2),
-  markl({ a: 2 }),
-  chainl(fl3),
-  chainl(encaseP(promise)),
-  chainl(newFutureFunc),
-  log,
-  chainl(fl4)
-  // chainl(flrej)
-)({});
+// const fin = r.pipe(
+//   newl(fl1),
+//   markl({ a: 1, b: 2 }),
+//   chainl(fl2),
+//   markl({ a: 2 }),
+//   chainl(fl3),
+//   chainl(encaseP(promise)),
+//   chainl(newFutureFunc),
+//   log,
+//   chainl(fl4)
+//   // chainl(flrej)
+// )({});
 
-forkl(fin);
+// forkl(fin);
 
+
+// const t = f.reject(1)
+const t = f.reject(1)
+  .pipe(f.chain(a => {
+    console.log(a);
+    return f.resolve(a);
+  }))
+  .pipe(f.chainRej(a => {
+    console.log('z');
+    return f.reject(a);
+  }))
+  .pipe(f.chain(a => {
+    console.log('aa');
+    return f.resolve(a);
+  }))
+  .pipe(f.chainRej(a => {
+    console.log('down');
+    return f.reject(a);
+  }))
+
+forkl(t);
 
 global.r = r;
 global.f = f;

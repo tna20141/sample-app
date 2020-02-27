@@ -11,9 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/boom": "^9.0.0",
-    "@hapi/hapi": "^18.3.1",
+    "@hapi/hapi": "^18.4.1",
     "@hapi/joi": "^17.1.0",
     "fluture": "^12.2.0",
+    "future": "github:tna20141/future",
     "lodash": "^4.17.15",
     "ramda": "^0.27.0"
   }

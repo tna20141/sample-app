@@ -1,20 +1,28 @@
-const Hapi = require('@hapi/hapi');
+'use strict';
 
 require('./mixin');
 
-const service = require('./service');
+const Hapi = require('@hapi/hapi');
 
+const controller = require('./controller');
 
 const init = async () => {
   const server = Hapi.server({
       port: 3001,
       host: 'localhost'
   });
-  server.route({
-    method: 'GET',
-    path: '/test1',
-    handler: service.test1,
-  });
+  server.route([
+    {
+      method: 'GET',
+      path: '/file/{name}',
+      handler: controller.readFile,
+    },
+    {
+      method: 'POST',
+      path: '/file/{name}',
+      handler: controller.writeFile,
+    }
+  ]);
 
   await server.start();
   console.log('Server running on %s', server.info.uri);

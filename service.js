@@ -1,9 +1,9 @@
 const fs = require('fs');
 
-require('./mixin');
+const dir = 'public/files/';
 
 const _readFile = filename => new Promise((resolve, reject) => {
-  fs.readFile(filename, (error, response) => {
+  fs.readFile(`${dir}${filename}`, (error, response) => {
     if (error) {
       return reject(error);
     }
@@ -11,20 +11,19 @@ const _readFile = filename => new Promise((resolve, reject) => {
   });
 });
 
-const readFile = encaseP(_readFile);
+const readFile = Future.encaseP(_readFile);
 
-const writeFile = (filename, str) => newFuture((resolve, reject) => {
-  fs.writeFile(filename, str, (error) => {
-    if (error) {
-      return reject(error);
-    }
-    return resolve();
-  })
-});
+const writeFile = (filename, str) =>
+  Future.resolve()
+    .tag('write start')
+    .then(() => new Future((resolve, reject) => {
+      fs.writeFile(`${dir}${filename}`, str, (error) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve();
+      })
+    }));
 
-const forkl = f.fork(e => {
-  console.log('we have an error');
-  console.error(e);
-})(console.log);
-
-forkl(writeFile('aa/aa.txt', 'bb');
+exports.readFile = readFile;
+exports.writeFile = writeFile;
